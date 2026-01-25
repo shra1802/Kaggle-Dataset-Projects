@@ -1,3 +1,7 @@
+# =====================================================
+# Mobile Game In-App Purchases A/B Testing Analysis
+# =====================================================
+
 # ------------------------------
 # Import Libraries
 # ------------------------------
@@ -6,110 +10,134 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import stats
-import kagglehub
+import os
 
 # ------------------------------
-# Step 1: Download the dataset
+# Step 1: Load Dataset (LOCAL PATH)
 # ------------------------------
-path = kagglehub.dataset_download("pratyushpuri/mobile-game-in-app-purchases-dataset-2025")
-print("Path to dataset files:", path)
+DATA_PATH = r"E:\Kaggle Dataset\mobile_game_in_app_purchases.csv"
+
+# Verify file exists
+if not os.path.exists(DATA_PATH):
+    raise FileNotFoundError("CSV file not found. Check file name and path.")
+
+df = pd.read_csv(DATA_PATH)
 
 # ------------------------------
-# Step 2: Load dataset
+# Step 2: Initial Inspection
 # ------------------------------
-# Replace with actual CSV file name inside the downloaded folder
-df = pd.read_csv(f"{path}/mobile_game_in_app_purchases.csv")
-
-# Quick overview
+print("Dataset Shape:", df.shape)
+print("\nFirst 5 Rows:")
 print(df.head())
+
+print("\nDataset Info:")
 print(df.info())
-print(df.describe())
+
+print("\nMissing Values:")
 print(df.isnull().sum())
 
 # ------------------------------
 # Step 3: Data Cleaning
 # ------------------------------
-# Fill missing Age with median
 df['Age'] = df['Age'].fillna(df['Age'].median())
-
-# Fill missing Gender with 'Unknown'
 df['Gender'] = df['Gender'].fillna('Unknown')
-
-# Fill missing Device with mode
 df['Device'] = df['Device'].fillna(df['Device'].mode()[0])
-
-# Fill missing InAppPurchaseAmount with 0
 df['InAppPurchaseAmount'] = df['InAppPurchaseAmount'].fillna(0)
 
-# Fill other categorical columns with 'Unknown'
-categorical_cols = ['Country', 'GameGenre', 'SpendingSegment', 'PaymentMethod']
+categorical_cols = [
+    'Country',
+    'GameGenre',
+    'SpendingSegment',
+    'PaymentMethod'
+]
+
 for col in categorical_cols:
     df[col] = df[col].fillna('Unknown')
 
+print("\nMissing Values After Cleaning:")
+print(df.isnull().sum())
+
 # ------------------------------
-# Step 4: EDA - Revenue & Spending Segment
+# Step 4: Exploratory Data Analysis
 # ------------------------------
+plt.figure()
 sns.histplot(df['InAppPurchaseAmount'], bins=50, kde=True)
 plt.title("Distribution of In-App Purchase Amounts")
 plt.xlabel("Purchase Amount ($)")
 plt.ylabel("Frequency")
 plt.show()
 
-sns.countplot(x='SpendingSegment', data=df, order=['Whale', 'Dolphin', 'Minnow'])
+plt.figure()
+sns.countplot(
+    x='SpendingSegment',
+    data=df,
+    order=['Whale', 'Dolphin', 'Minnow']
+)
 plt.title("Spending Segment Distribution")
 plt.show()
 
-# Revenue by Device
+plt.figure()
 sns.boxplot(x='Device', y='InAppPurchaseAmount', data=df)
 plt.title("Revenue by Device")
 plt.show()
 
 # ------------------------------
-# Step 5: A/B Testing Example
-# Compare Revenue between iOS and Android users
+# Step 5: A/B Testing (iOS vs Android)
 # ------------------------------
 group_ios = df[df['Device'] == 'iOS']['InAppPurchaseAmount']
 group_android = df[df['Device'] == 'Android']['InAppPurchaseAmount']
 
-# Visual comparison
-sns.boxplot(x='Device', y='InAppPurchaseAmount', data=df[df['Device'].isin(['iOS','Android'])])
-plt.title("In-App Purchases: iOS vs Android")
+plt.figure()
+sns.boxplot(
+    x='Device',
+    y='InAppPurchaseAmount',
+    data=df[df['Device'].isin(['iOS', 'Android'])]
+)
+plt.title("A/B Test: iOS vs Android Revenue")
 plt.show()
 
-# Check normality
-shapiro_ios = stats.shapiro(group_ios)
-shapiro_android = stats.shapiro(group_android)
-print("Shapiro Test iOS:", shapiro_ios)
-print("Shapiro Test Android:", shapiro_android)
+# Normality Test
+shapiro_ios = stats.shapiro(group_ios.sample(500, random_state=1)) if len(group_ios) > 500 else stats.shapiro(group_ios)
+shapiro_android = stats.shapiro(group_android.sample(500, random_state=1)) if len(group_android) > 500 else stats.shapiro(group_android)
 
-# Perform t-test if normal, else Mann-Whitney U
+print("\nShapiro Test Results:")
+print("iOS:", shapiro_ios)
+print("Android:", shapiro_android)
+
+# Statistical Test
 if shapiro_ios.pvalue > 0.05 and shapiro_android.pvalue > 0.05:
-    t_stat, p_val = stats.ttest_ind(group_ios, group_android, equal_var=False)
-    print("\nT-test results: t-statistic =", t_stat, "p-value =", p_val)
+    test_name = "Independent T-Test"
+    stat, p_value = stats.ttest_ind(group_ios, group_android, equal_var=False)
 else:
-    u_stat, p_val = stats.mannwhitneyu(group_ios, group_android, alternative='two-sided')
-    print("\nMann-Whitney U test: U-statistic =", u_stat, "p-value =", p_val)
+    test_name = "Mann-Whitney U Test"
+    stat, p_value = stats.mannwhitneyu(group_ios, group_android, alternative='two-sided')
 
-if p_val < 0.05:
-    print("Significant difference in spending between iOS and Android users.")
+print(f"\n{test_name} Results")
+print("Statistic:", stat)
+print("P-value:", p_value)
+
+if p_value < 0.05:
+    print("✅ Statistically significant difference between iOS and Android spending.")
 else:
-    print("No significant difference in spending between iOS and Android users.")
+    print("❌ No statistically significant difference between iOS and Android spending.")
 
 # ------------------------------
-# Step 6: Advanced Insights (Optional)
+# Step 6: Business Insights
 # ------------------------------
-# Average spending by GameGenre
-genre_revenue = df.groupby('GameGenre')['InAppPurchaseAmount'].mean().sort_values(ascending=False)
 print("\nAverage Revenue by Game Genre:")
-print(genre_revenue)
+print(df.groupby('GameGenre')['InAppPurchaseAmount'].mean().sort_values(ascending=False))
 
-# Average spending by Spending Segment
-segment_revenue = df.groupby('SpendingSegment')['InAppPurchaseAmount'].mean()
 print("\nAverage Revenue by Spending Segment:")
-print(segment_revenue)
+print(df.groupby('SpendingSegment')['InAppPurchaseAmount'].mean())
 
-# Revenue heatmap by Country and Device
-pivot = df.pivot_table(values='InAppPurchaseAmount', index='Country', columns='Device', aggfunc='mean')
-sns.heatmap(pivot, annot=True, fmt=".2f", cmap='YlGnBu')
+pivot = df.pivot_table(
+    values='InAppPurchaseAmount',
+    index='Country',
+    columns='Device',
+    aggfunc='mean'
+)
+
+plt.figure(figsize=(10, 6))
+sns.heatmap(pivot, annot=True, fmt=".2f")
 plt.title("Average Revenue by Country and Device")
 plt.show()
