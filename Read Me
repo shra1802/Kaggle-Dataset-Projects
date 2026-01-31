@@ -1,0 +1,188 @@
+📦 E-Commerce Customer Churn Analysis & Prediction (2025)
+📌 Project Overview
+
+Customer retention is critical in e-commerce, where acquiring new customers is significantly more expensive than retaining existing ones.
+This project analyzes customer behavior from a synthetic E-Commerce Churn Dataset (2025) to identify churn patterns and build machine learning models that predict customers at risk of leaving the platform.
+
+The project covers Exploratory Data Analysis (EDA), feature engineering, churn modeling, and business-driven insights that can help improve customer retention strategies.
+
+🎯 Objectives
+
+Perform detailed exploratory data analysis to understand customer behavior
+
+Define and identify churned customers
+
+Engineer meaningful features for churn prediction
+
+Build and evaluate machine learning models
+
+Analyze churn drivers and high-risk customer segments
+
+Provide actionable business recommendations
+
+🗂 Dataset Information
+
+Name: E-Commerce Customer Insights and Churn Dataset (2025)
+
+Type: Synthetic dataset
+
+Records: ~2,000 customer and order-level entries
+
+License: Apache 2.0
+
+Update Frequency: Monthly
+
+🔑 Key Features
+Column	Description
+order_id	Unique order identifier
+customer_id	Unique customer identifier
+age	Customer age
+gender	Customer gender
+country	Customer country
+signup_date	Date of customer registration
+last_purchase_date	Date of most recent purchase
+cancellations_count	Number of cancelled orders
+subscription_status	Active / Cancelled / Paused
+order_date	Order placement date
+unit_price	Price per product unit
+quantity	Quantity purchased
+purchase_frequency	Orders per year
+preferred_category	Most purchased category
+product_name	Product name
+category	Product category
+🔍 Exploratory Data Analysis (EDA)
+
+The EDA phase focuses on understanding both customer-level and order-level behaviors.
+
+Key Analyses:
+
+Customer demographics (age, gender, country)
+
+Purchase behavior and revenue trends
+
+Subscription status distribution
+
+Cancellation behavior analysis
+
+Time-based analysis (recency and tenure)
+
+Spending patterns by category and geography
+
+Tools Used:
+
+Pandas
+
+Matplotlib
+
+Seaborn
+
+🔄 Churn Definition
+
+A customer is classified as churned if any of the following conditions are met:
+
+subscription_status == "Cancelled"
+
+The customer has not made a purchase within a defined inactivity period (recency threshold)
+
+This definition combines behavioral inactivity and explicit churn signals, aligning with real-world business scenarios.
+
+🛠 Feature Engineering
+
+Key engineered features include:
+
+Recency: Days since last purchase
+
+Frequency: Purchase frequency per year
+
+Monetary Value: Total and average customer spend
+
+Tenure: Time since signup
+
+Cancellation Intensity: Number of canceled orders
+
+Categorical Encoding: Gender, country, category
+
+🤖 Machine Learning Models
+
+The following models were implemented and compared:
+
+Model	Purpose
+Logistic Regression	Baseline, interpretable model
+Random Forest	Non-linear model capturing complex patterns
+Evaluation Metrics:
+
+Accuracy
+
+Precision
+
+Recall
+
+F1-Score
+
+ROC-AUC
+
+Feature importance analysis was performed to identify the strongest churn drivers.
+
+📊 Key Insights
+
+Customers with low purchase frequency and high recency are more likely to churn
+
+Higher cancellation counts strongly correlate with churn
+
+Certain product categories show higher churn risk
+
+High-value customers exhibit lower churn but higher revenue impact when lost
+
+💡 Business Recommendations
+
+Implement targeted retention campaigns for high-risk customers
+
+Offer incentives to customers with declining purchase frequency
+
+Monitor cancellation behavior as an early churn signal
+
+Personalize engagement based on customer segment and category preference
+
+🧰 Tech Stack
+
+Programming: Python
+
+Libraries: Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn
+
+Environment: Jupyter Notebook
+
+Version Control: Git & GitHub
+
+📈 Future Enhancements
+
+Hyperparameter tuning
+
+Time-series churn forecasting
+
+Survival analysis for churn timing
+
+Deployment using Streamlit or Flask
+
+Dashboard integration (Power BI / Tableau)
+
+📜 License
+
+This project uses a synthetic dataset licensed under Apache 2.0 and is intended for educational and portfolio purposes.
+
+🙌 Acknowledgements
+
+Synthetic dataset inspired by real-world e-commerce platforms
+
+Built for learning, experimentation, and business insight generation
+
+⭐ If you found this project helpful, feel free to star the repository!
+
+If you want, I can next:
+
+Generate requirements.txt
+
+Create EDA & ML notebook structure
+
+Write resume bullet points based on this project
+
+Convert insights into Power BI dashboard plan
